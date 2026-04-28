@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curhat Anonim - Tempat Berbagi Cerita</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            padding: 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        /* Form Posting */
+        .post-form {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .post-form h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .category-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .category-btn {
+            padding: 10px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .category-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .category-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .post-form textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            font-size: 1rem;
+            resize: vertical;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        .post-form textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Filter Kategori */
+        .filter-section {
+            margin-bottom: 20px;
+        }
+
+        .filter-section h3 {
+            color: white;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+
+        .filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: white;
+            color: #667eea;
+        }
+
+        /* Cards Curhatan */
+        .posts-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .post-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .category-tag {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .cat-akademik { background: #e3f2fd; color: #1976d2; }
+        .cat-keluarga { background: #fff3e0; color: #f57c00; }
+        .cat-pertemanan { background: #e8f5e9; color: #388e3c; }
+        .cat-percintaan { background: #fce4ec; color: #c2185b; }
+        .cat-mental { background: #f3e5f5; color: #7b1fa2; }
+
+        .post-time {
+            color: #999;
+            font-size: 0.85rem;
+        }
+
+        .post-content {
+            color: #333;
+            line-height: 1.7;
+            margin-bottom: 20px;
+            font-size: 1.05rem;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: #f5f5f5;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .action-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .action-btn.liked {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        /* Replies */
+        .replies-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .reply-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .reply-form input {
+            flex: 1;
+            padding: 12px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 0.95rem;
+        }
+
+        .reply-form input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .reply-form button {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: transform 0.3s;
+        }
+
+        .reply-form button:hover {
+            transform: scale(1.05);
+        }
+
+        .reply-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 10px;
+        }
+
+        .reply-item p {
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .reply-time {
+            color: #999;
+            font-size: 0.8rem;
+            margin-top: 8px;
+        }
+
+        /* Anonymous Badge */
+        .anon-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .anon-avatar {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            background: rgba(255,255,255,0.15);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-item {
+            text-align: center;
+            color: white;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: white;
+        }
+
+        .empty-state span {
+            font-size: 4rem;
+            display: block;
+            margin-bottom: 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.8rem; }
+            .category-selector { gap: 8px; }
+            .category-btn { padding: 8px 14px; font-size: 0.85rem; }
+            .stats-bar { gap: 15px; }
+            .stat-number { font-size: 1.4rem; }
+            .reply-form { flex-direction: column; }
+            .reply-form button { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🕵️ Curhat Anonim</h1>
+            <p>Tempat berbagi cerita tanpa takut dihakimi. Identitasmu aman!</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-number" id="totalPosts">0</div>
+                <div class="stat-label">Curhatan</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalReplies">0</div>
+                <div class="stat-label">Dukungan</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalLikes">0</div>
+                <div class="stat-label">Semangat</div>
+            </div>
+        </div>
+
+        <!-- Form Posting -->
+        <div class="post-form">
+            <h2>✍️ Tulis Curhatanmu</h2>
+            
+            <p style="color: #666; margin-bottom: 15px; font-size: 0.95rem;">Pilih kategori:</p>
+            <div class="category-selector">
+                <button class="category-btn" data-category="akademik">📚 Akademik</button>
+                <button class="category-btn" data-category="keluarga">👨‍👩‍👧 Keluarga</button>
+                <button class="category-btn" data-category="pertemanan">🧑‍🤝‍🧑 Pertemanan</button>
+                <button class="category-btn" data-category="percintaan">💔 Percintaan</button>
+                <button class="category-btn" data-category="mental">😔 Kesehatan Mental</button>
+            </div>
+
+            <textarea id="postContent" placeholder="Ceritakan apa yang sedang kamu rasakan... Semua yang kamu tulis di sini anonim dan aman 💜"></textarea>
+            
+            <button class="submit-btn" onclick="submitPost()">🚀 Kirim Curhatan</button>
+        </div>
+
+        <!-- Filter -->
+        <div class="filter-section">
+            <h3>🏷️ Filter Kategori</h3>
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="semua">Semua</button>
+                <button class="filter-btn" data-filter="akademik">📚 Akademik</button>
+                <button class="filter-btn" data-filter="keluarga">👨‍👩‍👧 Keluarga</button>
+                <button class="filter-btn" data-filter="pertemanan">🧑‍🤝‍🧑 Pertemanan</button>
+                <button class="filter-btn" data-filter="percintaan">💔 Percintaan</button>
+                <button class="filter-btn" data-filter="mental">😔 Mental</button>
+            </div>
+        </div>
+
+        <!-- Posts Container -->
+        <div class="posts-container" id="postsContainer">
+            <!-- Posts akan muncul di sini -->
+        </div>
+    </div>
+
+    <script>
+        // Data storage
+        let posts = JSON.parse(localStorage.getItem('curhatPosts')) || [];
+        let selectedCategory = null;
+        let currentFilter = 'semua';
+
+        // Category info
+        const categoryInfo = {
+            akademik: { emoji: '📚', label: 'Akademik', class: 'cat-akademik' },
+            keluarga: { emoji: '👨‍👩‍👧', label: 'Keluarga', class: 'cat-keluarga' },
+            pertemanan: { emoji: '🧑‍🤝‍🧑', label: 'Pertemanan', class: 'cat-pertemanan' },
+            percintaan: { emoji: '💔', label: 'Percintaan', class: 'cat-percintaan' },
+            mental: { emoji: '😔', label: 'Kesehatan Mental', class: 'cat-mental' }
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderPosts();
+            updateStats();
+            setupCategoryButtons();
+            setupFilterButtons();
+        });
+
+        // Category selection
+        function setupCategoryButtons() {
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    selectedCategory = btn.dataset.category;
+                });
+            });
+        }
+
+        // Filter buttons
+        function setupFilterButtons() {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentFilter = btn.dataset.filter;
+                    renderPosts();
+                });
+            });
+        }
+
+        // Submit post
+        function submitPost() {
+            const content = document.getElementById('postContent').value.trim();
+            
+            if (!content) {
+                alert('Tulis dulu curhatanmu ya! 😊');
+                return;
+            }
+            
+            if (!selectedCategory) {
+                alert('Pilih kategori dulu ya! 🏷️');
+                return;
+            }
+
+            const newPost = {
+                id: Date.now(),
+                category: selectedCategory,
+                content: content,
+                timestamp: new Date().toISOString(),
+                likes: 0,
+                liked: false,
+                replies: []
+            };
+
+            posts.unshift(newPost);
+            saveData();
+            renderPosts();
+            updateStats();
+
+            // Reset form
+            document.getElementById('postContent').value = '';
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+            selectedCategory = null;
+
+            alert('Curhatanmu sudah terkirim! 💜 Semangat ya!');
+        }
+
+        // Render posts
+        function renderPosts() {
+            const container = document.getElementById('postsContainer');
+            let filteredPosts = posts;
+
+            if (currentFilter !== 'semua') {
+                filteredPosts = posts.filter(p => p.category === currentFilter);
+            }
+
+            if (filteredPosts.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <span>📝</span>
+                        <h3>Belum ada curhatan${currentFilter !== 'semua' ? ' di kategori ini' : ''}</h3>
+                        <p>Jadilah yang pertama berbagi cerita!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filteredPosts.map(post => {
+                const cat = categoryInfo[post.category];
+                const timeAgo = getTimeAgo(post.timestamp);
+                
+                return `
+                    <div class="post-card" data-id="${post.id}">
+                        <div class="post-header">
+                            <div class="anon-badge">
+                                <div class="anon-avatar">🎭</div>
+                                <span>Anonim</span>
+                            </div>
+                            <span class="category-tag ${cat.class}">${cat.emoji} ${cat.label}</span>
+                        </div>
+                        
+                        <p class="post-content">${escapeHtml(post.content)}</p>
+                        
+                        <div class="post-time">⏰ ${timeAgo}</div>
+                        
+                        <div class="post-actions">
+                            <button class="action-btn ${post.liked ? 'liked' : ''}" onclick="toggleLike(${post.id})">
+                                ❤️ <span>${post.likes}</span> Semangat
+                            </button>
+                            <button class="action-btn" onclick="toggleReplies(${post.id})">
+                                💬 <span>${post.replies.length}</span> Balasan
+                            </button>
+                        </div>
+                        
+                        <div class="replies-section" id="replies-${post.id}" style="display: none;">
+                            <div class="reply-form">
+                                <input type="text" id="reply-input-${post.id}" placeholder="Tulis dukunganmu...">
+                                <button onclick="addReply(${post.id})">Kirim</button>
+                            </div>
+                            <div class="replies-list">
+                                ${post.replies.map(reply => `
+                                    <div class="reply-item">
+                                        <p>💜 ${escapeHtml(reply.content)}</p>
+                                        <div class="reply-time">${getTimeAgo(reply.timestamp)}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Toggle like
+        function toggleLike(postId) {
+            const post = posts.find(p => p.id === postId);
+            if (post) {
+                post.liked = !post.liked;
+                post.likes += post.liked ? 1 : -1;
+                saveData();
+                renderPosts();
+                updateStats();
+            }
+        }
+
+        // Toggle replies section
+        function toggleReplies(postId) {
+            const section = document.getElementById(`replies-${postId}`);
+            section.style.display = section.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Add reply
+        function addReply(postId) {
+            const input = document.getElementById(`reply-input-${postId}`);
+            const content = input.value.trim();
+            
+            if (!content) return;
+
+            const post = posts.find(p => p.id === postId);
+            if (post) {
+                post.replies.push({
+                    content: content,
+                    timestamp: new Date().toISOString()
+                });
+                saveData();
+                renderPosts();
+                updateStats();
+                
+                // Re-open replies section
+                setTimeout(() => toggleReplies(postId), 100);
+            }
+        }
+
+        // Update stats
+        function updateStats() {
+            const totalPosts = posts.length;
+            const totalReplies = posts.reduce((sum, p) => sum + p.replies.length, 0);
+            const totalLikes = posts.reduce((sum, p) => sum + p.likes, 0);
+
+            document.getElementById('totalPosts').textContent = totalPosts;
+            document.getElementById('totalReplies').textContent = totalReplies;
+            document.getElementById('totalLikes').textContent = totalLikes;
+        }
+
+        // Helper: Time ago
+        function getTimeAgo(timestamp) {
+            const now = new Date();
+            const then = new Date(timestamp);
+            const diff = Math.floor((now - then) / 1000);
+
+            if (diff < 60) return 'Baru saja';
+            if (diff < 3600) return `${Math.floor(diff / 60)} menit lalu`;
+            if (diff < 86400) return `${Math.floor(diff / 3600)} jam lalu`;
+            if (diff < 604800) return `${Math.floor(diff / 86400)} hari lalu`;
+            return then.toLocaleDateString('id-ID');
+        }
+
+        // Helper: Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML.replace(/\n/g, '<br>');
+        }
+
+        // Save to localStorage
+        function saveData() {
+            localStorage.setItem('curhatPosts', JSON.stringify(posts));
+        }
+    </script>
+</body>
+</html>
